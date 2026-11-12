@@ -4,11 +4,9 @@
 
 A formatter for Helm charts that doesn't change what Helm renders.
 
-[![GitHub Release](https://img.shields.io/github/v/release/leonkozlowski/swab)](https://github.com/leonkozlowski/swab/releases)
-[![License](https://img.shields.io/github/license/leonkozlowski/swab)](https://github.com/leonkozlowski/swab/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/leonkozlowski/swab)](https://github.com/leonkozlowski/swab/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![CI](https://github.com/leonkozlowski/swab/actions/workflows/ci.yml/badge.svg)](https://github.com/leonkozlowski/swab/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/leonkozlowski/swab)](https://goreportcard.com/report/github.com/leonkozlowski/swab)
-![GitHub Downloads](https://img.shields.io/github/downloads/leonkozlowski/swab/total)
 
 </div>
 
