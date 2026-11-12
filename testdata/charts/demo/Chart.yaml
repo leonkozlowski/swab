@@ -1,0 +1,5 @@
+apiVersion: v2
+name: demo
+description: A deliberately messy chart used to test swab.
+version: 0.1.0
+appVersion: "1.0.0"

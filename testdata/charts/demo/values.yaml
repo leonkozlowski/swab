@@ -1,0 +1,11 @@
+replicaCount: 2
+image:
+  repository: nginx
+  tag: ""
+env:
+  LOG_LEVEL: debug
+  PORT: "8080"
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
