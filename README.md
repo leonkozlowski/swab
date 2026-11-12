@@ -2,11 +2,12 @@
 
 # swab
 
-A formatter for Helm charts that doesn't change what Helm renders.
+A formatter for Helm charts.
 
-[![Release](https://img.shields.io/github/v/release/leonkozlowski/swab)](https://github.com/leonkozlowski/swab/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![CI](https://github.com/leonkozlowski/swab/actions/workflows/ci.yml/badge.svg)](https://github.com/leonkozlowski/swab/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/leonkozlowski/swab?sort=semver)](https://github.com/leonkozlowski/swab/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![CI: Test](https://github.com/leonkozlowski/swab/actions/workflows/test.yml/badge.svg)](https://github.com/leonkozlowski/swab/actions/workflows/test.yml)
+[![CI: Lint](https://github.com/leonkozlowski/swab/actions/workflows/lint.yml/badge.svg)](https://github.com/leonkozlowski/swab/actions/workflows/lint.yml)
 
 </div>
 
