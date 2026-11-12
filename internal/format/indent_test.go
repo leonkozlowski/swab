@@ -126,6 +126,73 @@ version: {{ .Chart.AppVersion }}
 `,
 		},
 		{
+			name: "YAML in a nested block keeps the define in code mode",
+			in: `{{- define "x.pullSecrets" -}}
+{{- $s := list }}
+{{- range .images -}}
+{{- $s = append $s .name -}}
+{{- end -}}
+{{- if $s -}}
+imagePullSecrets:
+    {{- range $s }}
+  - name: {{ . }}
+    {{- end }}
+{{- end }}
+{{- end -}}
+`,
+			want: `{{- define "x.pullSecrets" -}}
+  {{- $s := list }}
+  {{- range .images -}}
+    {{- $s = append $s .name -}}
+  {{- end -}}
+  {{- if $s -}}
+imagePullSecrets:
+  {{- range $s }}
+  - name: {{ . }}
+  {{- end }}
+  {{- end }}
+{{- end -}}
+`,
+		},
+		{
+			name: "flush toYaml lines do not set alignment",
+			in: `        - matchLabels:
+            app: x
+            {{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 12 }}
+            {{- end }}
+`,
+			want: `        - matchLabels:
+            app: x
+            {{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 12 }}
+            {{- end }}
+`,
+		},
+		{
+			name: "declarations in code-nested output blocks follow code indentation",
+			in: `{{- define "x" -}}
+{{- $seen := list }}
+{{- range .items }}
+{{- if not (has . $seen) }}
+{{- $seen = append $seen . }}
+{{ include "x.item" . }}
+{{- end }}
+{{- end }}
+{{- end -}}
+`,
+			want: `{{- define "x" -}}
+  {{- $seen := list }}
+  {{- range .items }}
+    {{- if not (has . $seen) }}
+      {{- $seen = append $seen . }}
+{{ include "x.item" . }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
+`,
+		},
+		{
 			name: "multi-line actions are left alone",
 			in: `{{- define "x" -}}
 {{- $d := dict

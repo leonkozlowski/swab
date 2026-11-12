@@ -16,7 +16,8 @@ preceding whitespace, so their indentation never reaches the output.
 Blocks are laid out in one of two modes:
   - align: if/else/end match the least-indented YAML line inside the block;
     output lines like `{{- toYaml . | nindent 8 }}` are left alone.
-  - code: pure-logic blocks inside a define nest two spaces per level.
+  - code: blocks inside a define with no YAML directly in them nest two
+    spaces per level; a YAML block nested in code keeps its code position.
 */
 
 type lineKind int
@@ -24,6 +25,7 @@ type lineKind int
 const (
 	lineBlank   lineKind = iota
 	lineAnchor           // first visible thing is emitted text or an untrimmed action
+	lineFlush            // output line starting with "{{" at column 0; its column says nothing about YAML depth
 	lineMovable          // whitespace + one single-line {{- action }} + whitespace
 	lineOpaque           // inside a multi-line action, several actions, etc.
 )
@@ -35,6 +37,7 @@ type block struct {
 	parent            *block
 	skip              bool // opener and end on the same line; nothing to lay out
 	code              bool // code mode (see above); otherwise align mode
+	inCode            bool // nested directly in a code-mode block
 	col, body         int
 }
 
@@ -108,6 +111,9 @@ func reindent(src string) string {
 		si, ok := actionAt[p]
 		if !ok || !segs[si].leftTrim {
 			kinds[l] = lineAnchor
+			if ok && p == ls {
+				kinds[l] = lineFlush
+			}
 			continue
 		}
 		s := segs[si]
@@ -185,23 +191,32 @@ func reindent(src string) string {
 		return m
 	}
 
+	// Only YAML directly in a block (not in nested blocks) switches it to align mode.
+	direct := map[*block]bool{}
+	for l := 0; l < n; l++ {
+		if (kinds[l] == lineAnchor || kinds[l] == lineFlush) && inner[l] != nil {
+			direct[inner[l]] = true
+		}
+	}
+
 	// Lay out blocks, parents first (creation order).
 	for _, b := range blocks {
 		if b.skip {
 			continue
 		}
+		b.inCode = b.parent != nil && b.parent.code
+		b.code = !direct[b] && (b.keyword == "define" || b.inCode)
 		anchor := minAnchor(b)
-		b.code = anchor < 0 && (b.keyword == "define" || (b.parent != nil && b.parent.code))
 		openerMovable := kinds[b.openLine] == lineMovable && lineSeg[b.openLine] == b.openSeg
 		switch {
 		case !openerMovable:
 			b.col = indentOf(b.openLine)
 		case b.keyword == "define":
 			b.col = 0 // define is only legal at top level
+		case b.inCode:
+			b.col = b.parent.body
 		case anchor >= 0:
 			b.col = anchor
-		case b.code:
-			b.col = b.parent.body
 		default:
 			b.col = indentOf(b.openLine)
 		}
@@ -226,7 +241,7 @@ func reindent(src string) string {
 		switch {
 		case b == nil:
 			// top level: leave as written
-		case b.code:
+		case b.code, b.inCode && nonOutput(segs[si].body):
 			target[l] = b.body
 		case nonOutput(segs[si].body):
 			// align declarations with the YAML that follows
